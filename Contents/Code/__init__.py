@@ -1,5 +1,5 @@
 
-NAME                    = "subsonic"
+NAME                    = "Subsonic"
 PREFIX                  = "/music/subsonic"
 CACHE_INTERVAL          = 10
 ART                     = "art-default.png"

@@ -3,7 +3,7 @@
 	{
     	"id": "server",
       "type": "text",
-      "label": "Server URL",
+      "label": "Server URL (with a trailing slash)",
       "default": "http://127.0.0.1:4040/"
 	},
   {
