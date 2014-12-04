@@ -4,6 +4,7 @@ PREFIX                  = "/music/subsonic"
 CACHE_INTERVAL          = 10
 ART                     = "art-default.png"
 ICON                    = "icon-default.png"
+NOART			= "noart-default.png"
 ARTIST                  = "{http://subsonic.org/restapi}artist"
 ALBUM                   = "{http://subsonic.org/restapi}album"
 SONG                    = "{http://subsonic.org/restapi}song"
@@ -34,8 +35,7 @@ def getArtists():
     title       = item.get("name")
     id          = item.get("id")
     key        = PREFIX + '/getArtist/' + id
-    rating_key  = id
-    dir.add(ArtistObject(title=title, key=key, rating_key=rating_key))
+    dir.add(DirectoryObject(title=title, key=key))
   return dir
   
 #create a menu with all albums for selected artist
@@ -47,9 +47,13 @@ def getArtist(artistID):
   for item in searchElementTree(element, ALBUM):
     title       = item.get("name")
     id          = item.get("id")
-    key        = PREFIX + '/getAlbum/' + id
-    rating_key  = id
-    dir.add(AlbumObject(title=title, key=key, rating_key=rating_key))
+    coverArt    = item.get("coverArt")
+    key         = PREFIX + '/getAlbum/' + id
+    if coverArt:
+           thumbURL    = makeURL("getCoverArt.view", id=coverArt)
+           dir.add(DirectoryObject(title=title, key=key, thumb=Resource.ContentsOfURLWithFallback(url=thumbURL, fallback=NOART)))
+    else:
+           dir.add(DirectoryObject(title=title, key=key, thumb=R(NOART)))
   return dir
   
 #create a menu with all songs for selected album
@@ -65,6 +69,12 @@ def getAlbum(albumID):
   #populate the track listing
   element = XML.ElementFromURL(makeURL("getAlbum.view", id=albumID), cacheTime=CACHE_INTERVAL)
   albumName = element.find(ALBUM).get("name")
+  coverArt = element.find(ALBUM).get("coverArt")
+  if coverArt:
+         thumbURL    = makeURL("getCoverArt.view", id=coverArt)
+         thumbnail       = Resource.ContentsOfURLWithFallback(url=thumbURL, fallback=NOART)
+  else:
+         thumbnail=R(NOART)
   dir = ObjectContainer(title1=albumName)
   for item in searchElementTree(element, SONG):
     title       = item.get("title")
@@ -77,6 +87,7 @@ def getAlbum(albumID):
       duration=duration, 
       key=url, #might need to change this line eventually to return metadata instead of playing track
       rating_key=rating_key,
+      thumb=thumbnail,
       items = [
         MediaObject(
           parts = [
@@ -97,14 +108,6 @@ def playAudio(url):
 		return content
 	else:
 		raise Ex.MediaNotAvailable
-    
-#try to return thumbnail, else use default (currently unused)
-def Thumb(url):
-  try:
-    data       = HTTP.Request(url, cacheTime=CACHE_1WEEK).content
-    return DataObject(data, 'image/jpeg')
-  except:
-    return Redirect(R(ICON))
     
 #construct a http GET request from a view name and parameters
 def makeURL(view, **parameters):
