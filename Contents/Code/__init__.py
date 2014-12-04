@@ -75,7 +75,7 @@ def getAlbum(albumID):
          thumbnail       = Resource.ContentsOfURLWithFallback(url=thumbURL, fallback=NOART)
   else:
          thumbnail=R(NOART)
-  dir = ObjectContainer(title2=albumName)
+  dir = ObjectContainer(title1=albumName)
   for item in searchElementTree(element, SONG):
     artist      = item.get("artist")
     album       = item.get("album")
