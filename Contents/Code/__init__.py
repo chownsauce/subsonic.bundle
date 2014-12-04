@@ -75,14 +75,18 @@ def getAlbum(albumID):
          thumbnail       = Resource.ContentsOfURLWithFallback(url=thumbURL, fallback=NOART)
   else:
          thumbnail=R(NOART)
-  dir = ObjectContainer(title1=albumName)
+  dir = ObjectContainer(title2=albumName)
   for item in searchElementTree(element, SONG):
+    artist      = item.get("artist")
+    album       = item.get("album")
     title       = item.get("title")
     id          = item.get("id")
     rating_key  = id
     duration = 1000 * int(item.get("duration"))
     url = makeURL("stream.view", id=id, format=container)
     dir.add(TrackObject(
+      artist=artist, 
+      album=album, 
       title=title, 
       duration=duration, 
       key=url, #might need to change this line eventually to return metadata instead of playing track
