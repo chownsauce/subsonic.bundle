@@ -1,7 +1,7 @@
 
 NAME                    = "Subsonic"
 PREFIX                  = "/music/subsonic"
-CACHE_INTERVAL          = 10
+CACHE_INTERVAL          = 300
 ART                     = "art-default.png"
 ICON                    = "icon-default.png"
 NOART			= "noart-default.png"
@@ -89,7 +89,7 @@ def getAlbum(albumID):
       album=album, 
       title=title, 
       duration=duration, 
-      key=url, #might need to change this line eventually to return metadata instead of playing track
+      key=id, #might need to change this line eventually to return metadata instead of playing track
       rating_key=rating_key,
       thumb=thumbnail,
       items = [
@@ -105,6 +105,10 @@ def getAlbum(albumID):
       ]))
   return dir
   
+@route(PREFIX + '/getAlbum/{albumID}/{songID}')
+def getSong(albumID, songID):
+        return True
+
 #play an audio track (copied this function from the Plex Shoutcast channel)
 def playAudio(url):
 	content = HTTP.Request(url, cacheTime=0).content
@@ -139,7 +143,7 @@ def serverStatus():
   if not (Prefs['username'] and Prefs['password'] and Prefs['server']):
     return False
   #try to ping server with credentials
-  elif XML.ElementFromURL(makeURL("ping.view"), cacheTime=CACHE_INTERVAL).get("status") != "ok":
+  elif XML.ElementFromURL(makeURL("ping.view"), cacheTime=None).get("status") != "ok":
     return False
   #connection is successful, return True and proceed!
   else:
